@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="AutoService.BLL/AutoService.BLL.csproj" />
+  <Project Path="AutoService.DAL/AutoService.DAL.csproj" />
+  <Project Path="AutoService.Models/AutoService.Models.csproj" />
+  <Project Path="AutoService.UI/AutoService.UI.csproj" />
+</Solution>
