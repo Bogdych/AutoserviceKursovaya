@@ -1,0 +1,72 @@
+<UserControl x:Class="AutoService.Wpf.Views.ManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Создание заказа: клиент -> его автомобиль -->
+        <WrapPanel Grid.Row="0" Margin="0,0,0,10">
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Клиент"/>
+                <ComboBox x:Name="ClientCombo" Width="260" Height="30"
+                          DisplayMemberPath="FullName"
+                          SelectionChanged="ClientCombo_SelectionChanged"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Автомобиль"/>
+                <ComboBox x:Name="CarCombo" Width="290" Height="30"/>
+            </StackPanel>
+            <Button Content="Создать заказ" Click="CreateOrder_Click"
+                    Padding="14,6" VerticalAlignment="Bottom"/>
+        </WrapPanel>
+
+        <!-- Таблица заказов -->
+        <DataGrid x:Name="OrdersGrid" Grid.Row="1"
+                  AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                  SelectionMode="Single" HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal" RowHeight="32">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="№" Binding="{Binding Id}" Width="60"/>
+                <DataGridTextColumn Header="Клиент" Binding="{Binding Client}" Width="*"/>
+                <DataGridTextColumn Header="Авто" Binding="{Binding Car}" Width="*"/>
+                <DataGridTextColumn Header="Механик" Binding="{Binding Mechanic}" Width="*"/>
+                <DataGridTextColumn Header="Специализация" Binding="{Binding Specialization}" Width="*"/>
+                <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="1.3*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Механики и статусы -->
+        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+            <WrapPanel Margin="0,0,0,8">
+                <StackPanel Margin="0,0,10,0">
+                    <TextBlock Text="ФИО механика"/>
+                    <TextBox x:Name="MechNameBox" Width="240" Height="30"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,10,0">
+                    <TextBlock Text="Специализация"/>
+                    <TextBox x:Name="MechSpecBox" Width="190" Height="30"/>
+                </StackPanel>
+                <Button Content="Добавить механика" Click="AddMechanic_Click"
+                        Padding="14,6" VerticalAlignment="Bottom"/>
+            </WrapPanel>
+            <WrapPanel>
+                <StackPanel Margin="0,0,10,0">
+                    <TextBlock Text="Механик"/>
+                    <ComboBox x:Name="MechanicCombo" Width="330" Height="30"/>
+                </StackPanel>
+                <Button Content="Назначить механика" Click="Assign_Click"
+                        Padding="14,6" Margin="0,0,25,0" VerticalAlignment="Bottom"/>
+                <StackPanel Margin="0,0,10,0">
+                    <TextBlock Text="Статус"/>
+                    <ComboBox x:Name="StatusCombo" Width="260" Height="30"/>
+                </StackPanel>
+                <Button Content="Сменить статус" Click="ChangeStatus_Click"
+                        Padding="14,6" VerticalAlignment="Bottom"/>
+            </WrapPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -3,4 +3,5 @@
   <Project Path="AutoService.DAL/AutoService.DAL.csproj" />
   <Project Path="AutoService.Models/AutoService.Models.csproj" />
   <Project Path="AutoService.UI/AutoService.UI.csproj" />
+  <Project Path="AutoService.Wpf/AutoService.Wpf.csproj" />
 </Solution>
