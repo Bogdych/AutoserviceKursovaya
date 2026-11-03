@@ -7,4 +7,7 @@ public class Car : IEntity
     public string Brand { get; set; } = string.Empty;
     public string Model { get; set; } = string.Empty;
     public string PlateNumber { get; set; } = string.Empty;
+
+    // так автомобиль показывается в списках: «Skoda Octavia (A123BC)»
+    public override string ToString() => $"{Brand} {Model} ({PlateNumber})";
 }

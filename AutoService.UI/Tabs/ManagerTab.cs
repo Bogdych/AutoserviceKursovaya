@@ -8,10 +8,7 @@ public class ManagerTab : UserControl
     private readonly AppServices _app;
 
     private readonly ComboBox _clientCombo = new();
-    private readonly TextBox _brandBox = new();
-    private readonly TextBox _modelBox = new();
-    private readonly TextBox _plateBox = new();
-
+    private readonly ComboBox _carCombo = new();
     private readonly DataGridView _ordersGrid = new();
 
     private readonly TextBox _mechNameBox = new();
@@ -27,34 +24,35 @@ public class ManagerTab : UserControl
         RefreshAll();
     }
 
+    private static Label MakeLabel(string text) => new()
+    {
+        Text = text,
+        AutoSize = true,
+        Padding = new Padding(0, 6, 6, 0)
+    };
+
     private void BuildLayout()
     {
-        // Таблица заказов
-        _ordersGrid.Dock = DockStyle.Fill;
-        _ordersGrid.ReadOnly = true;
-        _ordersGrid.AllowUserToAddRows = false;
-        _ordersGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        _ordersGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        _ordersGrid.BackgroundColor = SystemColors.Window;
+        GridHelper.Configure(_ordersGrid);
 
-        // Верхняя панель: создание заказа
+        // Верхняя панель: клиент -> его автомобиль -> создать заказ
         var top = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 50, Padding = new Padding(8) };
+
         _clientCombo.DropDownStyle = ComboBoxStyle.DropDownList;
-        _clientCombo.Width = 220;
-        _brandBox.PlaceholderText = "Марка";
-        _brandBox.Width = 110;
-        _modelBox.PlaceholderText = "Модель";
-        _modelBox.Width = 110;
-        _plateBox.PlaceholderText = "Госномер";
-        _plateBox.Width = 110;
+        _clientCombo.Width = 260;
+        _clientCombo.SelectedIndexChanged += (s, e) => LoadClientCars();
+
+        _carCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+        _carCombo.Width = 280;
 
         var createButton = new Button { Text = "Создать заказ", AutoSize = true };
         createButton.Click += CreateOrder_Click;
 
         top.Controls.AddRange(new Control[]
         {
-            new Label { Text = "Клиент:", AutoSize = true, Padding = new Padding(0, 6, 0, 0) },
-            _clientCombo, _brandBox, _modelBox, _plateBox, createButton
+            MakeLabel("Клиент:"), _clientCombo,
+            MakeLabel("Автомобиль:"), _carCombo,
+            createButton
         });
 
         // Нижняя панель: механики и статусы
@@ -63,17 +61,17 @@ public class ManagerTab : UserControl
         _mechNameBox.PlaceholderText = "ФИО механика";
         _mechNameBox.Width = 220;
         _mechSpecBox.PlaceholderText = "Специализация";
-        _mechSpecBox.Width = 160;
+        _mechSpecBox.Width = 180;
         var addMechButton = new Button { Text = "Добавить механика", AutoSize = true };
         addMechButton.Click += AddMechanic_Click;
 
         _mechanicCombo.DropDownStyle = ComboBoxStyle.DropDownList;
-        _mechanicCombo.Width = 220;
+        _mechanicCombo.Width = 320; // показывает «ФИО — специализация»
         var assignButton = new Button { Text = "Назначить механика", AutoSize = true };
         assignButton.Click += Assign_Click;
 
         _statusCombo.DropDownStyle = ComboBoxStyle.DropDownList;
-        _statusCombo.Width = 160;
+        _statusCombo.Width = 200;
         _statusCombo.Items.AddRange(Enum.GetValues<RepairStatus>().Select(StatusText).ToArray());
         _statusCombo.SelectedIndex = 0;
         var statusButton = new Button { Text = "Сменить статус", AutoSize = true };
@@ -82,28 +80,34 @@ public class ManagerTab : UserControl
         bottom.Controls.AddRange(new Control[]
         {
             _mechNameBox, _mechSpecBox, addMechButton,
-            new Label { Text = "Механик:", AutoSize = true, Padding = new Padding(0, 6, 0, 0) },
-            _mechanicCombo, assignButton,
-            new Label { Text = "Статус:", AutoSize = true, Padding = new Padding(10, 6, 0, 0) },
-            _statusCombo, statusButton
+            MakeLabel("Механик:"), _mechanicCombo, assignButton,
+            MakeLabel("Статус:"), _statusCombo, statusButton
         });
-        bottom.SetFlowBreak(addMechButton, true); // перенос на вторую строку
+        bottom.SetFlowBreak(addMechButton, true);
 
         Controls.Add(_ordersGrid); // сначала Fill,
         Controls.Add(bottom);      // потом Bottom
         Controls.Add(top);         // и Top
     }
 
-    // Обновляет выпадающие списки и таблицу
     public void RefreshAll()
     {
         _clientCombo.DataSource = _app.Clients.GetAll();
         _clientCombo.DisplayMember = "FullName";
 
-        _mechanicCombo.DataSource = _app.Staff.GetAll();
-        _mechanicCombo.DisplayMember = "FullName";
+        _mechanicCombo.DataSource = _app.Staff.GetAll(); // текст берётся из Employee.ToString()
 
+        LoadClientCars();
         RefreshOrders();
+    }
+
+    // Список автомобилей зависит от выбранного клиента
+    private void LoadClientCars()
+    {
+        if (_clientCombo.SelectedItem is Client client)
+            _carCombo.DataSource = _app.Clients.GetCars(client.Id);
+        else
+            _carCombo.DataSource = null;
     }
 
     private void RefreshOrders()
@@ -115,15 +119,20 @@ public class ManagerTab : UserControl
         _ordersGrid.DataSource = _app.Orders.GetAll().Select(o =>
         {
             var car = cars.FirstOrDefault(c => c.Id == o.CarId);
+            var mechanic = staff.FirstOrDefault(s => s.Id == o.EmployeeId);
             return new
             {
                 Номер = o.Id,
                 Клиент = clients.FirstOrDefault(c => c.Id == o.ClientId)?.FullName ?? "—",
-                Авто = car == null ? "—" : $"{car.Brand} {car.Model} ({car.PlateNumber})",
-                Механик = staff.FirstOrDefault(s => s.Id == o.EmployeeId)?.FullName ?? "не назначен",
+                Авто = car?.ToString() ?? "—",
+                Механик = mechanic?.FullName ?? "не назначен",
+                Специализация = mechanic?.Specialization ?? "—",
                 Статус = StatusText(o.Status)
             };
         }).ToList();
+
+        _ordersGrid.Columns["Номер"]!.HeaderText = "№";
+        GridHelper.FixedWidth(_ordersGrid.Columns["Номер"]!, 60);
     }
 
     private static string StatusText(RepairStatus status) => status switch
@@ -140,21 +149,19 @@ public class ManagerTab : UserControl
 
     private void CreateOrder_Click(object? sender, EventArgs e)
     {
-        try
+        if (_clientCombo.SelectedItem is not Client client)
         {
-            if (_clientCombo.SelectedItem is not Client client)
-                throw new ArgumentException("Сначала добавьте и выберите клиента.");
+            MessageBox.Show("Сначала добавьте клиента на вкладке «Клиенты».");
+            return;
+        }
+        if (_carCombo.SelectedItem is not Car car)
+        {
+            MessageBox.Show("У клиента нет автомобиля. Добавьте его на вкладке «Клиенты».");
+            return;
+        }
 
-            _app.Orders.CreateWithCar(client.Id, _brandBox.Text, _modelBox.Text, _plateBox.Text);
-            _brandBox.Clear();
-            _modelBox.Clear();
-            _plateBox.Clear();
-            RefreshOrders();
-        }
-        catch (ArgumentException ex)
-        {
-            MessageBox.Show(ex.Message, "Ошибка ввода");
-        }
+        _app.Orders.Create(client.Id, car.Id);
+        RefreshOrders();
     }
 
     private void AddMechanic_Click(object? sender, EventArgs e)

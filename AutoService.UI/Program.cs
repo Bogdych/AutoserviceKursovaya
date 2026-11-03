@@ -10,6 +10,6 @@ static class Program
         ApplicationConfiguration.Initialize();
 
         var services = new AppServices(Path.Combine(AppContext.BaseDirectory, "Data"));
-        Application.Run(new Form1(services));
+        Application.Run(new MainForm(services));
     }
 }

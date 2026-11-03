@@ -25,7 +25,7 @@ public class AppServices
         Parts = new JsonRepository<Part>(Path.Combine(dataFolder, "parts.json"));
         Operations = new JsonRepository<TechOperation>(Path.Combine(dataFolder, "operations.json"));
 
-        Clients = new ClientService(clients);
+        Clients = new ClientService(clients, Cars);
         Staff = new EmployeeService(Employees);
         Orders = new OrderService(orders, Cars);
         Calculation = new CalculationService(Parts, Operations);
