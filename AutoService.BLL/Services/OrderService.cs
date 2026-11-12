@@ -83,4 +83,11 @@ public class OrderService
         order.Status = status;
         _orders.Update(order);
     }
+
+    public void SetComment(int orderId, string comment)
+    {
+        var order = GetById(orderId);
+        order.MechanicComment = comment.Trim();
+        _orders.Update(order);
+    }
 }

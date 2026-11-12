@@ -1,0 +1,17 @@
+<UserControl x:Class="AutoService.Wpf.Car3D.CarViewer3D"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helix="http://helix-toolkit.org/wpf">
+    <Grid>
+        <helix:HelixViewport3D x:Name="Viewer"
+                               Background="#EEF1F5"
+                               PreviewMouseLeftButtonDown="Viewer_PreviewMouseLeftButtonDown"
+                               PreviewMouseLeftButtonUp="Viewer_PreviewMouseLeftButtonUp">
+            <helix:DefaultLights/>
+            <ModelVisual3D x:Name="CarVisual"/>
+        </helix:HelixViewport3D>
+
+        <TextBlock x:Name="StatusText" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontSize="18" Foreground="#555555" TextWrapping="Wrap" TextAlignment="Center"/>
+    </Grid>
+</UserControl>

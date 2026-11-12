@@ -13,5 +13,8 @@
         <TabItem Header="Менеджер">
             <views:ManagerView x:Name="ManagerPage"/>
         </TabItem>
+        <TabItem Header="Механик">
+            <views:MechanicView x:Name="MechanicPage"/>
+        </TabItem>
     </TabControl>
 </Window>

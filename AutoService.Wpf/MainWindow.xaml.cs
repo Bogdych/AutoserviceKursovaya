@@ -18,5 +18,6 @@ public partial class MainWindow : Window
 
         ClientsPage?.RefreshData();
         ManagerPage?.RefreshData();
+        MechanicPage?.RefreshData();
     }
 }
