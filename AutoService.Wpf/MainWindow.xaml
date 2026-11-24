@@ -16,5 +16,8 @@
         <TabItem Header="Механик">
             <views:MechanicView x:Name="MechanicPage"/>
         </TabItem>
+        <TabItem Header="Справочники">
+            <views:CatalogView x:Name="CatalogPage"/>
+        </TabItem>
     </TabControl>
 </Window>

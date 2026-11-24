@@ -6,7 +6,8 @@ namespace AutoService.BLL;
 public class CalculationService
 {
     // Стоимость одного нормо-часа (потом можно вынести в настройки)
-    public const decimal NormHourRate = 1500m;
+        
+    public const decimal NormHourRate = 40m;
 
     private readonly IRepository<Part> _parts;
     private readonly IRepository<TechOperation> _operations;

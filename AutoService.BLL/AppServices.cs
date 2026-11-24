@@ -12,6 +12,8 @@ public class AppServices
 
     public ClientService Clients { get; }
     public EmployeeService Staff { get; }
+    public PartService PartCatalog { get; }
+    public OperationService OperationCatalog { get; }
     public OrderService Orders { get; }
     public CalculationService Calculation { get; }
 
@@ -27,6 +29,8 @@ public class AppServices
 
         Clients = new ClientService(clients, Cars);
         Staff = new EmployeeService(Employees);
+        PartCatalog = new PartService(Parts);
+        OperationCatalog = new OperationService(Operations);
         Orders = new OrderService(orders, Cars);
         Calculation = new CalculationService(Parts, Operations);
     }

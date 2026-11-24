@@ -22,12 +22,15 @@ public class JsonRepository<T> : IRepository<T> where T : IEntity
         _items = Load();
     }
 
-    private List<T> Load()
+        private List<T> Load()
     {
         if (!File.Exists(_filePath))
             return new List<T>();
 
         string json = File.ReadAllText(_filePath);
+        if (string.IsNullOrWhiteSpace(json))   // пустой файл считаем пустым списком
+            return new List<T>();
+
         return JsonSerializer.Deserialize<List<T>>(json, Options) ?? new List<T>();
     }
 
@@ -37,7 +40,11 @@ public class JsonRepository<T> : IRepository<T> where T : IEntity
         if (!string.IsNullOrEmpty(folder))
             Directory.CreateDirectory(folder);
 
-        File.WriteAllText(_filePath, JsonSerializer.Serialize(_items, Options));
+        // сначала пишем во временный файл, потом подменяем им основной:
+        // если программа упадёт посреди записи, старый файл не пропадёт
+        string temp = _filePath + ".tmp";
+        File.WriteAllText(temp, JsonSerializer.Serialize(_items, Options));
+        File.Move(temp, _filePath, overwrite: true);
     }
 
     public List<T> GetAll() => new List<T>(_items);
