@@ -53,16 +53,63 @@ public class OrderService
         _orders.Update(order);
     }
 
-    public void AddPart(int orderId, int partId, int quantity)
+       public void AddPart(int orderId, int partId, int quantity)
     {
         if (quantity <= 0)
             throw new ArgumentException("Количество должно быть больше нуля.");
 
         var order = GetById(orderId);
-        order.Parts.Add(new OrderPart { PartId = partId, Quantity = quantity });
+        var existing = order.Parts.FirstOrDefault(p => p.PartId == partId);
+        if (existing != null) existing.Quantity += quantity;   // та же запчасть: увеличиваем количество
+        else order.Parts.Add(new OrderPart { PartId = partId, Quantity = quantity });
         _orders.Update(order);
     }
 
+    public void RemovePart(int orderId, int index)
+    {
+        var order = GetById(orderId);
+        if (index < 0 || index >= order.Parts.Count) return;
+        order.Parts.RemoveAt(index);
+        _orders.Update(order);
+    }
+
+    public void RemoveOperation(int orderId, int index)
+    {
+        var order = GetById(orderId);
+        if (index < 0 || index >= order.OperationIds.Count) return;
+        order.OperationIds.RemoveAt(index);
+        _orders.Update(order);
+    }
+
+    public void AddService(int orderId, string name, decimal price)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Введите название услуги.");
+        if (price <= 0)
+            throw new ArgumentException("Стоимость услуги должна быть больше нуля.");
+
+        var order = GetById(orderId);
+        order.Services.Add(new AdditionalService { Name = name.Trim(), Price = price });
+        _orders.Update(order);
+    }
+
+    public void RemoveService(int orderId, int index)
+    {
+        var order = GetById(orderId);
+        if (index < 0 || index >= order.Services.Count) return;
+        order.Services.RemoveAt(index);
+        _orders.Update(order);
+    }
+
+    public void SetDiscount(int orderId, decimal percent)
+    {
+        if (percent < 0 || percent > 100)
+            throw new ArgumentException("Скидка должна быть от 0 до 100 процентов.");
+
+        var order = GetById(orderId);
+        order.DiscountPercent = percent;
+        _orders.Update(order);
+    }
     public void AddOperation(int orderId, int operationId)
     {
         var order = GetById(orderId);
